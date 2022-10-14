@@ -11,14 +11,14 @@ namespace mps {
 	{
 		std::unordered_map<std::string, User>::iterator it;
 	public:
-		UserIterator(std::unordered_map<std::string, User>::iterator it) : it(it) {};
+		UserIterator(const std::unordered_map<std::string, User>::iterator& it) : it(it) {};
 
 		UserIterator& operator++();
 		UserIterator operator++(int);
-		bool operator==(const UserIterator& rhs);
-		bool operator!=(const UserIterator& rhs);
-		const User& operator*();
-		const User* operator->();
+		bool operator==(const UserIterator& rhs) const;
+		bool operator!=(const UserIterator& rhs) const;
+		const User& operator*() const;
+		const User* operator->() const;
 	};
 
 	class UserManager {
@@ -27,10 +27,14 @@ namespace mps {
 	public:
 		UserManager(Persistence& persistence);
 
-		void add(const std::string& login, const std::string& pass);
-		void remove(const std::string& login);
+		User& add(const std::string& login, const std::string& pass);
+		User& add(const User& user);
+		std::size_t remove(const std::string& login);
 		User& get(const std::string& login);
-		UserIterator getAll();
+		UserIterator begin();
+		UserIterator end();
+		const UserIterator cbegin();
+		const UserIterator cend();
 	};
 
 }

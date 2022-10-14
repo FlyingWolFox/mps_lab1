@@ -16,24 +16,22 @@ UserIterator UserIterator::operator++(int)
 	return tmp;
 }
 
-bool UserIterator::operator==(const UserIterator &rhs) { return it == rhs.it; }
+bool UserIterator::operator==(const UserIterator &rhs) const { return it == rhs.it; }
 
-bool UserIterator::operator!=(const UserIterator &rhs) { return it != rhs.it; }
+bool UserIterator::operator!=(const UserIterator &rhs) const { return it != rhs.it; }
 
-const User &UserIterator::operator*() { return it->second; }
+const User &UserIterator::operator*() const { return it->second; }
 
-const User *UserIterator::operator->() { return &it->second; }
+const User *UserIterator::operator->() const { return &it->second; }
 
 
 UserManager::UserManager(Persistence& persistence) : users(), persistence(persistence)
 {
 	for (auto& user : persistence.users())
-	{
-		users.insert_or_assign(user.first, User(user.first, user.second));
-	}
+		users.emplace(user.first, User(user.first, user.second));
 }
 
-void UserManager::add(const std::string &login, const std::string &pass)
+User& UserManager::add(const std::string &login, const std::string &pass)
 {
 	// TODO: should we use just one message instead of two?
 	if (login.empty())
@@ -58,11 +56,19 @@ void UserManager::add(const std::string &login, const std::string &pass)
 	auto[_it, inserted] = users.emplace(login, User(login, pass));
 	if (!inserted)
 		throw UserAlreadyExistsException("User already exists", "User already exists");
+
+	this->persistence.users().emplace(login, pass); 
+	return _it->second;
 }
 
-void UserManager::remove(const std::string &login)
+User& UserManager::add(const User& user)
 {
-	users.erase(login);
+	return add(user.login(), user.pass());
+}
+
+std::size_t UserManager::remove(const std::string &login)
+{
+	return users.erase(login);
 }
 
 User& UserManager::get(const std::string &login)
@@ -70,7 +76,22 @@ User& UserManager::get(const std::string &login)
 	return users.at(login);
 }
 
-UserIterator UserManager::getAll()
+UserIterator UserManager::begin()
 {
 	return UserIterator(users.begin());
+}
+
+UserIterator UserManager::end()
+{
+	return UserIterator(users.end());
+}
+
+const UserIterator UserManager::cbegin()
+{
+	return UserIterator(users.begin());
+}
+
+const UserIterator UserManager::cend()
+{
+	return UserIterator(users.end());
 }
