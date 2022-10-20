@@ -48,7 +48,7 @@ int main(int, char**) {
                     }
                     catch (const mps::UserCreationException& e)
                     {
-                        std::cout << "User creation failed: " << e.display_msg() << std::endl;
+                        std::cout << "User creation failed: " << e.display_msg() << "\n" << std::endl;
                     }
                 }
 
@@ -145,6 +145,8 @@ int main(int, char**) {
                 break;
         }
 
-        std::cout << std::endl;
+        std::cout << "\n<Press Enter to continue> ";
+        std::cout.flush();
+        std::cin.ignore();
     }
 }
