@@ -48,10 +48,10 @@ User& UserManager::add(const std::string &login, const std::string &pass)
 		throw UserPasswordException("Password too long", "Password cannot be longer than 20 characters");
 	if (pass.length() < 8)
 		throw UserPasswordException("Password too short", "Password cannot be shorter than 8 characters");
+	if (pass.find_first_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ") == pass.find_last_of("0123456789"))
+		throw UserPasswordException("Password doesn't have a letter", "Password must contain at least a letter");
 	if (pass.find_first_of("0123456789") == pass.find_last_of("0123456789"))
 		throw UserPasswordException("Password contains less than two digits", "Password must contain at least two digits");
-	if (pass.find_first_not_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789") != std::string::npos)
-		throw UserPasswordException("Password contains invalid symbols", "Password can only contain letters and digits");
 
 	auto[_it, inserted] = users.emplace(login, User(login, pass));
 	if (!inserted)
