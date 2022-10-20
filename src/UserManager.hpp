@@ -29,6 +29,7 @@ namespace mps {
 
 		User& add(const std::string& login, const std::string& pass);
 		User& add(const User& user);
+		void update(User& user, const std::string& pass);
 		std::size_t remove(const std::string& login);
 		User& get(const std::string& login);
 		UserIterator begin();

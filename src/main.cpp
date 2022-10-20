@@ -78,32 +78,27 @@ int main(int, char**) {
                 std::cin >> login;
                 std::cin.ignore();
 
-                if(userManager.remove(login) == 0)
-                {
-                    std::cout << "User not found." << std::endl;
-                    std::cout << std::endl;
-                    continue;
-                }
-
-                while (true)
-                {
-                    std::cout << "Enter new login: ";
-                    std::cin >> login;
-                    std::cin.ignore();
-
-                    std::cout << "Enter new password: ";
-                    std::cin >> pass;
-                    std::cin.ignore();
-
+                while (true) {
                     try
                     {
-                        userManager.add(login, pass);
+                        auto& user = userManager.get(login);
+                        std::cout << "Enter new password: ";
+                        std::cin >> pass;
+                        std::cin.ignore();
+                        userManager.update(user, pass);
                         std::cout << "User updated successfully" << std::endl;
                         break;
                     }
-                    catch (const mps::UserCreationException& e)
+                    catch(const mps::UserNotFoundException& e)
+                    {
+                        std::cout << "User not found." << std::endl;
+                        std::cout << std::endl;
+                        break;
+                    }
+                    catch(const mps::UserPasswordException& e)
                     {
                         std::cout << "User update failed: " << e.display_msg() << std::endl;
+                        std::cout << std::endl;
                     }
                 }
 

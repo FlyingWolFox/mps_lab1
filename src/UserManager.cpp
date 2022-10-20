@@ -31,17 +31,18 @@ UserManager::UserManager(Persistence& persistence) : users(), persistence(persis
 		users.emplace(user.first, User(user.first, user.second));
 }
 
-User& UserManager::add(const std::string &login, const std::string &pass)
+void check_login(const std::string& login)
 {
-	// TODO: should we use just one message instead of two?
 	if (login.empty())
 		throw UserLoginException("Empty login", "Login cannot be empty");
 	if (login.length() > 12)
 		throw UserLoginException("Login too long", "Login cannot be longer than 12 characters");
-	// TODO: uh, can login contain spaces/symbols?
 	if (login.find_first_of("0123456789") != std::string::npos)
 		throw UserLoginException("Login contains digits", "Login cannot contain digits");
+}
 
+void check_password(const std::string& pass)
+{
 	if (pass.empty())
 		throw UserPasswordException("Empty password", "Password cannot be empty");
 	if (pass.length() > 20)
@@ -52,6 +53,12 @@ User& UserManager::add(const std::string &login, const std::string &pass)
 		throw UserPasswordException("Password doesn't have a letter", "Password must contain at least a letter");
 	if (pass.find_first_of("0123456789") == pass.find_last_of("0123456789"))
 		throw UserPasswordException("Password contains less than two digits", "Password must contain at least two digits");
+}
+
+User& UserManager::add(const std::string &login, const std::string &pass)
+{
+	check_login(login);
+	check_password(pass);
 
 	auto[_it, inserted] = users.emplace(login, User(login, pass));
 	if (!inserted)
@@ -59,6 +66,12 @@ User& UserManager::add(const std::string &login, const std::string &pass)
 
 	this->persistence.users().emplace(login, pass); 
 	return _it->second;
+}
+
+void UserManager::update(User& user, const std::string& pass)
+{
+	check_password(pass);
+	user.pass() = pass;
 }
 
 User& UserManager::add(const User& user)
