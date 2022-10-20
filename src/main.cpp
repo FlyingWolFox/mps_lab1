@@ -1,12 +1,9 @@
 #include <iostream>
-#include "User.hpp"
 #include "UserManager.hpp"
-#include "Persistence.hpp"
 #include "exceptions.hpp"
 
 int main(int, char**) {
-    mps::Persistence persistence;
-    mps::UserManager userManager(persistence);
+    mps::UserManager userManager;
 
     while (true)
     {

@@ -25,12 +25,6 @@ const User &UserIterator::operator*() const { return it->second; }
 const User *UserIterator::operator->() const { return &it->second; }
 
 
-UserManager::UserManager(Persistence& persistence) : users(), persistence(persistence)
-{
-	for (auto& user : persistence.users())
-		users.emplace(user.first, User(user.first, user.second));
-}
-
 void check_login(const std::string& login)
 {
 	if (login.empty())
@@ -72,6 +66,7 @@ void UserManager::update(User& user, const std::string& pass)
 {
 	check_password(pass);
 	user.pass() = pass;
+	this->persistence.users().at(user.login()) = pass;
 }
 
 User& UserManager::add(const User& user)

@@ -3,7 +3,7 @@
 
 #include <string>
 #include <unordered_map>
-#include "User.hpp"
+#include "../model/User.hpp"
 #include "Persistence.hpp"
 
 namespace mps {
@@ -23,10 +23,8 @@ namespace mps {
 
 	class UserManager {
 		std::unordered_map<std::string, User> users;
-		Persistence& persistence;
+		Persistence persistence;
 	public:
-		UserManager(Persistence& persistence);
-
 		User& add(const std::string& login, const std::string& pass);
 		User& add(const User& user);
 		void update(User& user, const std::string& pass);
