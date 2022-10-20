@@ -28,6 +28,12 @@ namespace mps {
 		using UserCreationException::UserCreationException;
 	};
 
+
+	class UserNotFoundException : public std::out_of_range
+	{
+		using std::out_of_range::out_of_range;
+	};
+
 }
 
 #endif

@@ -73,7 +73,14 @@ std::size_t UserManager::remove(const std::string &login)
 
 User& UserManager::get(const std::string &login)
 {
-	return users.at(login);
+	try
+	{
+		return users.at(login);
+	}
+	catch (std::out_of_range& e)
+	{
+		throw UserNotFoundException("User not found");
+	}
 }
 
 UserIterator UserManager::begin()

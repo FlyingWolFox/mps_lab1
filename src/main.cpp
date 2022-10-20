@@ -65,8 +65,7 @@ int main(int, char**) {
                     mps::User& user = userManager.get(login);
                     std::cout << "User found: \nLogin: " << user.login() << "\nPassword: " << user.pass() << std::endl;
                 }
-                // TODO: maybe create a UserNotFoundException?
-                catch (const std::out_of_range& e)
+                catch (const mps::UserNotFoundException& e)
                 {
                     std::cout << "User not found." << std::endl;
                 }
