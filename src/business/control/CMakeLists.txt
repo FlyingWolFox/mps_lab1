@@ -1,4 +1,4 @@
-add_library(mps_control UserManager.cpp)
+add_library(mps_control UserManager.cpp TradeManager.cpp)
 get_filename_component(BUSINESS_DIR ../../ ABSOLUTE)
 get_filename_component(SRC_DIR ../../ ABSOLUTE)
 target_include_directories(mps_control PUBLIC ${BUSINESS_DIR}/model ${SRC_DIR}/infra ${SRC_DIR}/util)
