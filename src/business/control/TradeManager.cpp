@@ -24,6 +24,7 @@ const Trade& TradeIterator::operator*() const { return *it; }
 const Trade* TradeIterator::operator->() const { return &(*it); }
 
 
+TradeManager TradeManager::instance;
 
 void TradeManager::add(const Trade& trade)
 {
@@ -44,3 +45,4 @@ const TradeIterator TradeManager::cbegin() { return TradeIterator(trades.begin()
 
 const TradeIterator TradeManager::cend() { return TradeIterator(trades.end()); }
 
+TradeManager& TradeManager::getInstance() { return instance; }

@@ -25,6 +25,8 @@ const User &UserIterator::operator*() const { return it->second; }
 const User *UserIterator::operator->() const { return &it->second; }
 
 
+UserManager UserManager::instance;
+
 void check_login(const std::string& login)
 {
 	if (login.empty())
@@ -109,4 +111,9 @@ const UserIterator UserManager::cbegin()
 const UserIterator UserManager::cend()
 {
 	return UserIterator(users.end());
+}
+
+UserManager &UserManager::getInstance()
+{
+	return instance;
 }

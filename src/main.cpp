@@ -1,20 +1,19 @@
 #include <iostream>
 #include "UserManager.hpp"
+#include "TradeManager.hpp"
 #include "exceptions.hpp"
 
 int main(int, char**) {
-    mps::UserManager userManager;
+    mps::UserManager& userManager = mps::UserManager::getInstance();
+    mps::TradeManager& tradeManager = mps::TradeManager::getInstance();
 
     while (true)
     {
-        std::cout << "Operations Available:" << std::endl;
-        std::cout << "(C)reate an user" << std::endl;
-        std::cout << "(R)ead an user" << std::endl;
-        std::cout << "(U)pdate an user" << std::endl;
-        std::cout << "(D)elete an user" << std::endl;
-        std::cout << "(L)ist all users" << std::endl;
+        std::cout << "Operate on: " << std::endl;
+        std::cout << "(U)ser" << std::endl;
+        std::cout << "(T)rade" << std::endl;
         std::cout << "(Q)uit" << std::endl;
-        std::cout << "\nWhat do you want to do? (C/R/U/D/L/Q) ";
+        std::cout << "\nWhat do you want to operate on? (U/T/Q) ";
         std::cout.flush();
 
         char choice;
@@ -23,118 +22,215 @@ int main(int, char**) {
 
         std::string login;
         std::string pass;
+
         switch (choice)
         {
-            case 'c':
-            case 'C':
-                while (true)
-                {
+        case 'U':
+        case 'u':
+            std::cout << "Operations Available:" << std::endl;
+            std::cout << "(C)reate an user" << std::endl;
+            std::cout << "(R)ead an user" << std::endl;
+            std::cout << "(U)pdate an user" << std::endl;
+            std::cout << "(D)elete an user" << std::endl;
+            std::cout << "(L)ist all users" << std::endl;
+            std::cout << "\nWhat do you want to do? (C/R/U/D/L) ";
+            std::cout.flush();
+
+            std::cin >> choice;
+            std::cin.ignore();
+
+            switch (choice)
+            {
+                case 'c':
+                case 'C':
+                    while (true)
+                    {
+                        std::cout << "Enter login: ";
+                        std::cin >> login;
+                        std::cin.ignore();
+
+                        std::cout << "Enter password: ";
+                        std::cin >> pass;
+                        std::cin.ignore();
+
+                        try
+                        {
+                            userManager.add(login, pass);
+                            std::cout << "User created successfully" << std::endl;
+                            break;
+                        }
+                        catch (const mps::UserCreationException& e)
+                        {
+                            std::cout << "User creation failed: " << e.display_msg() << "\n" << std::endl;
+                        }
+                    }
+
+                break;
+
+                case 'r':
+                case 'R':
                     std::cout << "Enter login: ";
                     std::cin >> login;
                     std::cin.ignore();
 
-                    std::cout << "Enter password: ";
-                    std::cin >> pass;
-                    std::cin.ignore();
-
                     try
                     {
-                        userManager.add(login, pass);
-                        std::cout << "User created successfully" << std::endl;
-                        break;
+                        mps::User& user = userManager.get(login);
+                        std::cout << "User found: \nLogin: " << user.login() << "\nPassword: " << user.pass() << std::endl;
                     }
-                    catch (const mps::UserCreationException& e)
-                    {
-                        std::cout << "User creation failed: " << e.display_msg() << "\n" << std::endl;
-                    }
-                }
-
-            break;
-
-            case 'r':
-            case 'R':
-                std::cout << "Enter login: ";
-                std::cin >> login;
-                std::cin.ignore();
-
-                try
-                {
-                    mps::User& user = userManager.get(login);
-                    std::cout << "User found: \nLogin: " << user.login() << "\nPassword: " << user.pass() << std::endl;
-                }
-                catch (const mps::UserNotFoundException& e)
-                {
-                    std::cout << "User not found." << std::endl;
-                }
-
-            break;
-
-            case 'u':
-            case 'U':
-                std::cout << "Enter login: ";
-                std::cin >> login;
-                std::cin.ignore();
-
-                while (true) {
-                    try
-                    {
-                        auto& user = userManager.get(login);
-                        std::cout << "Enter new password: ";
-                        std::cin >> pass;
-                        std::cin.ignore();
-                        userManager.update(user, pass);
-                        std::cout << "User updated successfully" << std::endl;
-                        break;
-                    }
-                    catch(const mps::UserNotFoundException& e)
+                    catch (const mps::UserNotFoundException& e)
                     {
                         std::cout << "User not found." << std::endl;
-                        std::cout << std::endl;
-                        break;
                     }
-                    catch(const mps::UserPasswordException& e)
+
+                break;
+
+                case 'u':
+                case 'U':
+                    std::cout << "Enter login: ";
+                    std::cin >> login;
+                    std::cin.ignore();
+
+                    while (true) {
+                        try
+                        {
+                            auto& user = userManager.get(login);
+                            std::cout << "Enter new password: ";
+                            std::cin >> pass;
+                            std::cin.ignore();
+                            userManager.update(user, pass);
+                            std::cout << "User updated successfully" << std::endl;
+                            break;
+                        }
+                        catch(const mps::UserNotFoundException& e)
+                        {
+                            std::cout << "User not found." << std::endl;
+                            std::cout << std::endl;
+                            break;
+                        }
+                        catch(const mps::UserPasswordException& e)
+                        {
+                            std::cout << "User update failed: " << e.display_msg() << std::endl;
+                            std::cout << std::endl;
+                        }
+                    }
+
+                break;
+
+                case 'd':
+                case 'D':
+                    std::cout << "Enter login: ";
+                    std::cin >> login;
+                    std::cin.ignore();
+
+                    if(userManager.remove(login) == 0)
                     {
-                        std::cout << "User update failed: " << e.display_msg() << std::endl;
-                        std::cout << std::endl;
+                        std::cout << "User not found." << std::endl;
+                        continue;
                     }
-                }
 
+                    std::cout << "User deleted successfully" << std::endl;
+
+                break;
+
+                case 'l':
+                case 'L':
+                    for (const auto& user : userManager)
+                    {
+                        std::cout << user.login() << std::endl;
+                    }
+
+                break;
+
+                default:
+                    std::cout << "Invalid choice" << std::endl;
+                    break;
+            }
             break;
 
-            case 'd':
-            case 'D':
-                std::cout << "Enter login: ";
-                std::cin >> login;
-                std::cin.ignore();
+        case 'T':
+        case 't':
+            std::cout << "Operations Available:" << std::endl;
+            std::cout << "(C)reate a trade" << std::endl;
+            std::cout << "(R)ead a trade" << std::endl;
+            std::cout << "(L)ist all trades" << std::endl;
+            std::cout << "\nWhat do you want to do? (C/R/L) ";
+            std::cout.flush();
 
-                if(userManager.remove(login) == 0)
-                {
-                    std::cout << "User not found." << std::endl;
-                    continue;
-                }
+            std::cin >> choice;
+            std::cin.ignore();
 
-                std::cout << "User deleted successfully" << std::endl;
-
-            break;
-
-            case 'l':
-            case 'L':
+            switch (choice)
             {
-                for (const auto& user : userManager)
-                {
-                    std::cout << user.login() << std::endl;
-                }
+                case 'c':
+                case 'C':
+                    std::cout << "Enter amount (without commas): ";
+                    int amount;
+                    std::cin >> amount;
+                    std::cin.ignore();
+
+                    std::cout << "Enter type (B/S): ";
+                    char type;
+                    std::cin >> type;
+                    std::cin.ignore();
+
+                    switch(type)
+                    {
+                        case 'B':
+                        case 'b':
+                            tradeManager.add(mps::Buy(amount));
+                            break;
+                        case 'S':
+                        case 's':
+                            tradeManager.add(mps::Sell(amount));
+                            break;
+                        default:
+                            std::cout << "Invalid type" << std::endl;
+                            continue;
+                            break;
+                    }
+
+                    std::cout << "Trade created successfully" << std::endl;
+
+                break;
+
+                case 'r':
+                case 'R':
+                    size_t index;
+                    std::cout << "Enter index: ";
+                    std::cin >> index;
+                    std::cin.ignore();
+
+
+                    try
+                    {
+                        const mps::Trade& trade = tradeManager.get(index);
+                        std::cout << "Trade found: \nType: " << trade.name() << "\nAmount: " << trade.amount() << std::endl;
+                    }
+                    catch (const std::out_of_range& e)
+                    {
+                        std::cout << "Trade not found." << std::endl;
+                    }
+                break;
+
+                case 'l':
+                case 'L':
+                    for (auto it = tradeManager.begin(); it != tradeManager.end(); ++it)
+                    {
+                        std::cout << it->name() << " " << it->amount() << std::endl;
+                    }
+                break;
             }
 
             break;
 
-            case 'q':
-            case 'Q':
-                return 0;
-
-            default:
-                std::cout << "Invalid choice" << std::endl;
-                break;
+        case 'Q':
+        case 'q':
+            return 0;
+        
+        default:
+            std::cout << "Invalid choice" << std::endl;
+            break;
         }
 
         std::cout << "\n<Press Enter to continue> ";

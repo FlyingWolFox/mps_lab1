@@ -23,18 +23,20 @@ namespace mps {
 
 	class TradeManager
 	{
+		static TradeManager instance;
+		TradeManager() = default;
+
 		std::vector<Trade> trades;
 		TradePersistance persistence;
 	public:
-		TradeManager() = default;
-		~TradeManager() = default;
-
 		void add(const Trade& trade);
 		Trade& get(const std::size_t& index);
 		TradeIterator begin();
 		TradeIterator end();
 		const TradeIterator cbegin();
 		const TradeIterator cend();
+
+		static TradeManager& getInstance();
 	};
 }
 

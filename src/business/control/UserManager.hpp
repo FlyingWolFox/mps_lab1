@@ -22,6 +22,9 @@ namespace mps {
 	};
 
 	class UserManager {
+		static UserManager instance;
+		UserManager() = default;
+
 		std::unordered_map<std::string, User> users;
 		Persistence persistence;
 	public:
@@ -34,6 +37,8 @@ namespace mps {
 		UserIterator end();
 		const UserIterator cbegin();
 		const UserIterator cend();
+
+		static UserManager& getInstance();
 	};
 
 }
