@@ -1,7 +1,9 @@
 #include <iostream>
+#include <algorithm>
 #include "UserManager.hpp"
 #include "TradeManager.hpp"
 #include "exceptions.hpp"
+#include "business/report/Report.hpp"
 
 int main(int, char**) {
     mps::UserManager& userManager = mps::UserManager::getInstance();
@@ -12,8 +14,9 @@ int main(int, char**) {
         std::cout << "Operate on: " << std::endl;
         std::cout << "(U)ser" << std::endl;
         std::cout << "(T)rade" << std::endl;
+        std::cout << "(R)eport" << std::endl;
         std::cout << "(Q)uit" << std::endl;
-        std::cout << "\nWhat do you want to operate on? (U/T/Q) ";
+        std::cout << "\nWhat do you want to operate on? (U/T/R/Q) ";
         std::cout.flush();
 
         char choice;
@@ -22,6 +25,9 @@ int main(int, char**) {
 
         std::string login;
         std::string pass;
+        std::vector<std::tuple<std::string, std::string>> userPasswdVec;
+        std::vector<std::byte> report_bytes;
+        std::string report_str;
 
         switch (choice)
         {
@@ -220,6 +226,56 @@ int main(int, char**) {
                         std::cout << it->name() << " " << it->amount() << std::endl;
                     }
                 break;
+            }
+
+            break;
+        
+        case 'R':
+        case 'r':
+            std::cout << "Choose a format to print:" << std::endl;
+            std::cout << "(C)SV" << std::endl;
+            std::cout << "(H)TML" << std::endl;
+            std::cout << "\nYour choice? (C/H) ";
+            std::cout.flush();
+
+            std::cin >> choice;
+            std::cin.ignore();
+
+            switch (choice)
+            {
+                case 'c':
+                case 'C':
+                    std::transform(userManager.begin(), userManager.end(), std::back_inserter(userPasswdVec), [](const mps::User& user) {
+                        return std::make_tuple(user.login(), user.pass());
+                    });
+
+                    report_bytes = mps::UserReportCSV(userPasswdVec)();
+                    report_str.reserve(report_bytes.size());
+                    std::transform(report_bytes.begin(), report_bytes.end(), std::back_inserter(report_str), [](const std::byte& c) {
+                        return (char)c;
+                    });
+
+                    std::cout << "START OF FILE" << std::endl;
+                    std::cout << report_str << std::endl;
+                    std::cout << "END OF FILE" << std::endl;
+                    break;
+
+                case 'h':
+                case 'H':
+                    std::transform(userManager.begin(), userManager.end(), std::back_inserter(userPasswdVec), [](const mps::User& user) {
+                        return std::make_tuple(user.login(), user.pass());
+                    });
+
+                    report_bytes = mps::UserReportHTML(userPasswdVec)();
+                    report_str.reserve(report_bytes.size());
+                    std::transform(report_bytes.begin(), report_bytes.end(), std::back_inserter(report_str), [](const std::byte& c) {
+                        return (char)c;
+                    });
+
+                    std::cout << "START OF FILE" << std::endl;
+                    std::cout << report_str << std::endl;
+                    std::cout << "END OF FILE" << std::endl;
+                    break;
             }
 
             break;
