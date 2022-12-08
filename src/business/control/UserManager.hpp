@@ -26,7 +26,7 @@ namespace mps {
 		UserManager() = default;
 
 		std::unordered_map<std::string, User> users;
-		Persistence persistence;
+		PersistanceFactory::UserPersistance persistence;
 	public:
 		User& add(const std::string& login, const std::string& pass);
 		User& add(const User& user);

@@ -60,7 +60,7 @@ User& UserManager::add(const std::string &login, const std::string &pass)
 	if (!inserted)
 		throw UserAlreadyExistsException("User already exists", "User already exists");
 
-	this->persistence.users().emplace(login, pass); 
+	this->persistence.structure().emplace(login, pass); 
 	return _it->second;
 }
 
@@ -68,7 +68,7 @@ void UserManager::update(User& user, const std::string& pass)
 {
 	check_password(pass);
 	user.pass() = pass;
-	this->persistence.users().at(user.login()) = pass;
+	this->persistence.structure().at(user.login()) = pass;
 }
 
 User& UserManager::add(const User& user)

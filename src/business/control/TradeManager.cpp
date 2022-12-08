@@ -29,7 +29,7 @@ TradeManager TradeManager::instance;
 void TradeManager::add(const Trade& trade)
 {
 	trades.push_back({trade});
-	this->persistence.trades().emplace_back(trade.typeId(), trade.amount());
+	this->persistence.structure().emplace_back(trade.typeId(), trade.amount());
 }
 
 Trade& TradeManager::get(const std::size_t& index)

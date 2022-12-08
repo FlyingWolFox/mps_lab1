@@ -6,22 +6,23 @@
 #include <vector>
 
 namespace mps {
-	class Persistence
+
+	template <typename Structure>
+	class Persistance
 	{
-		std::unordered_map<std::string, std::string> _users;
+		Structure _structure;
 	public:
-		std::unordered_map<std::string, std::string>& users() { return _users; }
-		const std::unordered_map<std::string, std::string>& users() const { return _users; }
+		Structure& structure() { return _structure; }
+		const Structure& structure() const { return _structure; }
 	};
 
-	class TradePersistance
-	{
-		std::vector<std::tuple<uintmax_t, intmax_t>> _trades;
-	public:
-		std::vector<std::tuple<uintmax_t, intmax_t>>& trades() { return _trades; }
-		const std::vector<std::tuple<uintmax_t, intmax_t>>& trades() const { return _trades; }
-	};
 
+	class PersistanceFactory
+	{
+	public:
+		using UserPersistance = Persistance<std::unordered_map<std::string, std::string>>;
+		using TradePersistance = Persistance<std::vector<std::tuple<uintmax_t, intmax_t>>>;
+	};
 }
 
 #endif

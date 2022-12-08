@@ -27,7 +27,7 @@ namespace mps {
 		TradeManager() = default;
 
 		std::vector<Trade> trades;
-		TradePersistance persistence;
+		PersistanceFactory::TradePersistance persistence;
 	public:
 		void add(const Trade& trade);
 		Trade& get(const std::size_t& index);
