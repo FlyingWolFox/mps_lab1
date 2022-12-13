@@ -4,6 +4,7 @@
 #include "TradeManager.hpp"
 #include "exceptions.hpp"
 #include "business/report/Report.hpp"
+#include "util/UserManager_UserReportAdapater.hpp"
 
 int main(int, char**) {
     mps::UserManager& userManager = mps::UserManager::getInstance();
@@ -245,11 +246,7 @@ int main(int, char**) {
             {
                 case 'c':
                 case 'C':
-                    std::transform(userManager.begin(), userManager.end(), std::back_inserter(userPasswdVec), [](const mps::User& user) {
-                        return std::make_tuple(user.login(), user.pass());
-                    });
-
-                    report_bytes = mps::UserReportCSV(userPasswdVec)();
+                    report_bytes = mps::UserReportCSV(mps::UserManager_UserReportAdapter(userManager)())();
                     report_str.reserve(report_bytes.size());
                     std::transform(report_bytes.begin(), report_bytes.end(), std::back_inserter(report_str), [](const std::byte& c) {
                         return (char)c;
@@ -262,11 +259,7 @@ int main(int, char**) {
 
                 case 'h':
                 case 'H':
-                    std::transform(userManager.begin(), userManager.end(), std::back_inserter(userPasswdVec), [](const mps::User& user) {
-                        return std::make_tuple(user.login(), user.pass());
-                    });
-
-                    report_bytes = mps::UserReportHTML(userPasswdVec)();
+                    report_bytes = mps::UserReportHTML(mps::UserManager_UserReportAdapter(userManager)())();
                     report_str.reserve(report_bytes.size());
                     std::transform(report_bytes.begin(), report_bytes.end(), std::back_inserter(report_str), [](const std::byte& c) {
                         return (char)c;
