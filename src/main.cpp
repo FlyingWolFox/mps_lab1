@@ -34,6 +34,7 @@ int main(int, char**) {
                     "Read an user",
                     "Update an user",
                     "Delete an user",
+                    "TUndo last operation",
                     "List all users"
                 }}();
             choice = mps::FormattedInputCommand<char>()();
@@ -134,6 +135,19 @@ int main(int, char**) {
                     }
 
                 break;
+
+                case 't':
+                case 'T':
+                    try
+                    {
+                        userManager.rollback();
+                        std::cout << "Undo successful" << std::endl;
+                    }
+                    catch (const mps::AtOldestStateException& e)
+                    {
+                        std::cout << "Already at the oldest change" << std::endl;
+                    }
+                    break;
 
                 default:
                     std::cout << "Invalid choice" << std::endl;

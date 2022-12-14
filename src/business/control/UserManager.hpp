@@ -3,6 +3,7 @@
 
 #include <string>
 #include <unordered_map>
+#include <stack>
 #include "../model/User.hpp"
 #include "Persistence.hpp"
 
@@ -21,9 +22,22 @@ namespace mps {
 		const User* operator->() const;
 	};
 
+	class UserManager;
+
+	class UserManagerMemento
+	{
+		std::unordered_map<std::string, User> users;
+		PersistanceFactory::UserPersistance persistence;
+		UserManagerMemento(const std::unordered_map<std::string, User>& users, const PersistanceFactory::UserPersistance& persistence) : users(users), persistence(persistence) {}
+
+		friend class UserManager;
+	};
+
 	class UserManager {
 		static UserManager instance;
 		UserManager() = default;
+
+		std::stack<UserManagerMemento> mementos;
 
 		std::unordered_map<std::string, User> users;
 		PersistanceFactory::UserPersistance persistence;
@@ -39,6 +53,8 @@ namespace mps {
 		const UserIterator cend();
 
 		static UserManager& getInstance();
+
+		void rollback();
 	};
 
 }

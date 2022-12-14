@@ -34,6 +34,12 @@ namespace mps {
 		using std::out_of_range::out_of_range;
 	};
 
+
+	class AtOldestStateException : public std::runtime_error
+	{
+		using std::runtime_error::runtime_error;
+	};
+
 }
 
 #endif

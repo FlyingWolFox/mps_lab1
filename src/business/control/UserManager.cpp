@@ -56,9 +56,14 @@ User& UserManager::add(const std::string &login, const std::string &pass)
 	check_login(login);
 	check_password(pass);
 
+	this->mementos.push({this->users, this->persistence});
+
 	auto[_it, inserted] = users.emplace(login, User(login, pass));
 	if (!inserted)
+	{
 		throw UserAlreadyExistsException("User already exists", "User already exists");
+		this->mementos.pop();
+	}
 
 	this->persistence.structure().emplace(login, pass); 
 	return _it->second;
@@ -67,6 +72,7 @@ User& UserManager::add(const std::string &login, const std::string &pass)
 void UserManager::update(User& user, const std::string& pass)
 {
 	check_password(pass);
+	this->mementos.push({this->users, this->persistence});
 	user.pass() = pass;
 	this->persistence.structure().at(user.login()) = pass;
 }
@@ -78,7 +84,13 @@ User& UserManager::add(const User& user)
 
 std::size_t UserManager::remove(const std::string &login)
 {
-	return users.erase(login);
+	this->mementos.push({this->users, this->persistence});
+	if (users.erase(login) == 0)
+	{
+		this->mementos.pop();
+		return 0;
+	}
+	return 1;
 }
 
 User& UserManager::get(const std::string &login)
@@ -116,4 +128,17 @@ const UserIterator UserManager::cend()
 UserManager &UserManager::getInstance()
 {
 	return instance;
+}
+
+void UserManager::rollback()
+{
+	if (this->mementos.empty())
+		throw AtOldestStateException("No memento to rollback to");
+
+	auto& memento = this->mementos.top();
+
+	this->users = std::move(memento.users);
+	this->persistence = std::move(memento.persistence);
+
+	this->mementos.pop();
 }
