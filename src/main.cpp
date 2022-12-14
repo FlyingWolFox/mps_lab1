@@ -5,6 +5,9 @@
 #include "exceptions.hpp"
 #include "business/report/Report.hpp"
 #include "util/UserManager_UserReportAdapater.hpp"
+#include "util/command.hpp"
+
+using namespace std::string_literals;
 
 int main(int, char**) {
     mps::UserManager& userManager = mps::UserManager::getInstance();
@@ -12,21 +15,12 @@ int main(int, char**) {
 
     while (true)
     {
-        std::cout << "Operate on: " << std::endl;
-        std::cout << "(U)ser" << std::endl;
-        std::cout << "(T)rade" << std::endl;
-        std::cout << "(R)eport" << std::endl;
-        std::cout << "(Q)uit" << std::endl;
-        std::cout << "\nWhat do you want to operate on? (U/T/R/Q) ";
-        std::cout.flush();
-
-        char choice;
-        std::cin >> choice;
-        std::cin.ignore();
+        mps::PrintOptionsCommand{"Operate on:", {"User", "Trade", "Report", "Quit"}}();
+        char choice = mps::FormattedInputCommand<char>()();
 
         std::string login;
         std::string pass;
-        std::vector<std::tuple<std::string, std::string>> userPasswdVec;
+
         std::vector<std::byte> report_bytes;
         std::string report_str;
 
@@ -34,17 +28,15 @@ int main(int, char**) {
         {
         case 'U':
         case 'u':
-            std::cout << "Operations Available:" << std::endl;
-            std::cout << "(C)reate an user" << std::endl;
-            std::cout << "(R)ead an user" << std::endl;
-            std::cout << "(U)pdate an user" << std::endl;
-            std::cout << "(D)elete an user" << std::endl;
-            std::cout << "(L)ist all users" << std::endl;
-            std::cout << "\nWhat do you want to do? (C/R/U/D/L) ";
-            std::cout.flush();
-
-            std::cin >> choice;
-            std::cin.ignore();
+            mps::PrintOptionsCommand{
+                "Operations Available:", {
+                    "Create an user",
+                    "Read an user",
+                    "Update an user",
+                    "Delete an user",
+                    "List all users"
+                }}();
+            choice = mps::FormattedInputCommand<char>()();
 
             switch (choice)
             {
@@ -52,13 +44,11 @@ int main(int, char**) {
                 case 'C':
                     while (true)
                     {
-                        std::cout << "Enter login: ";
-                        std::cin >> login;
-                        std::cin.ignore();
+                        mps::FormattedOutputCommand("Enter login: "s)();
+                        login = mps::FormattedInputCommand<std::string>()();
 
-                        std::cout << "Enter password: ";
-                        std::cin >> pass;
-                        std::cin.ignore();
+                        mps::FormattedOutputCommand("Enter password: "s)();
+                        pass = mps::FormattedInputCommand<std::string>()();
 
                         try
                         {
@@ -76,9 +66,8 @@ int main(int, char**) {
 
                 case 'r':
                 case 'R':
-                    std::cout << "Enter login: ";
-                    std::cin >> login;
-                    std::cin.ignore();
+                    mps::FormattedOutputCommand("Enter login: "s)();
+                    login = mps::FormattedInputCommand<std::string>()();
 
                     try
                     {
@@ -94,17 +83,15 @@ int main(int, char**) {
 
                 case 'u':
                 case 'U':
-                    std::cout << "Enter login: ";
-                    std::cin >> login;
-                    std::cin.ignore();
+                    mps::FormattedOutputCommand("Enter login: "s)();
+                    login = mps::FormattedInputCommand<std::string>()();
 
                     while (true) {
                         try
                         {
                             auto& user = userManager.get(login);
-                            std::cout << "Enter new password: ";
-                            std::cin >> pass;
-                            std::cin.ignore();
+                            mps::FormattedOutputCommand("Enter new password: "s)();
+                            pass = mps::FormattedInputCommand<std::string>()();
                             userManager.update(user, pass);
                             std::cout << "User updated successfully" << std::endl;
                             break;
@@ -126,9 +113,8 @@ int main(int, char**) {
 
                 case 'd':
                 case 'D':
-                    std::cout << "Enter login: ";
-                    std::cin >> login;
-                    std::cin.ignore();
+                    mps::FormattedOutputCommand("Enter login: "s)();
+                    login = mps::FormattedInputCommand<std::string>()();
 
                     if(userManager.remove(login) == 0)
                     {
@@ -157,29 +143,25 @@ int main(int, char**) {
 
         case 'T':
         case 't':
-            std::cout << "Operations Available:" << std::endl;
-            std::cout << "(C)reate a trade" << std::endl;
-            std::cout << "(R)ead a trade" << std::endl;
-            std::cout << "(L)ist all trades" << std::endl;
-            std::cout << "\nWhat do you want to do? (C/R/L) ";
-            std::cout.flush();
-
-            std::cin >> choice;
-            std::cin.ignore();
+            mps::PrintOptionsCommand{
+                "Operations Available:", {
+                    "Create a trade",
+                    "Read a trade",
+                    "List all trades"
+                }}();
+            choice = mps::FormattedInputCommand<char>()();
 
             switch (choice)
             {
                 case 'c':
                 case 'C':
-                    std::cout << "Enter amount (without commas): ";
+                    mps::FormattedOutputCommand("Enter amount (without commas): "s)();
                     int amount;
-                    std::cin >> amount;
-                    std::cin.ignore();
+                    amount = mps::FormattedInputCommand<int>()();
 
-                    std::cout << "Enter type (B/S): ";
+                    mps::FormattedOutputCommand("Enter type (B/S): "s)();
                     char type;
-                    std::cin >> type;
-                    std::cin.ignore();
+                    type = mps::FormattedInputCommand<char>()();
 
                     switch(type)
                     {
@@ -203,11 +185,9 @@ int main(int, char**) {
 
                 case 'r':
                 case 'R':
+                    mps::FormattedOutputCommand("Enter index: "s)();
                     size_t index;
-                    std::cout << "Enter index: ";
-                    std::cin >> index;
-                    std::cin.ignore();
-
+                    index = mps::FormattedInputCommand<size_t>()();
 
                     try
                     {
@@ -233,14 +213,12 @@ int main(int, char**) {
         
         case 'R':
         case 'r':
-            std::cout << "Choose a format to print:" << std::endl;
-            std::cout << "(C)SV" << std::endl;
-            std::cout << "(H)TML" << std::endl;
-            std::cout << "\nYour choice? (C/H) ";
-            std::cout.flush();
-
-            std::cin >> choice;
-            std::cin.ignore();
+            mps::PrintOptionsCommand{
+                "Choose a format to print:", {
+                    "CSV",
+                    "HTML",
+                }}();
+            choice = mps::FormattedInputCommand<char>()();
 
             switch (choice)
             {
@@ -282,8 +260,7 @@ int main(int, char**) {
             break;
         }
 
-        std::cout << "\n<Press Enter to continue> ";
-        std::cout.flush();
+        mps::FormattedOutputCommand("<Press Enter to continue>"s)();
         std::cin.ignore();
     }
 }
