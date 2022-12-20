@@ -27,34 +27,62 @@ const User *UserIterator::operator->() const { return &it->second; }
 
 UserManager UserManager::instance;
 
-void check_login(const std::string& login)
+class UserCreationHandler
 {
-	if (login.empty())
-		throw UserLoginException("Empty login", "Login cannot be empty");
-	if (login.length() > 12)
-		throw UserLoginException("Login too long", "Login cannot be longer than 12 characters");
-	if (login.find_first_of("0123456789") != std::string::npos)
-		throw UserLoginException("Login contains digits", "Login cannot contain digits");
-}
+protected:
+	UserCreationHandler *next;
+public:
+	virtual void setNext(UserCreationHandler *next)
+	{
+		this->next = next;
+	}
+	virtual void handle(const std::string& login, const std::string& pass)
+	{
+		if (this->next)
+			this->next->handle(login, pass);
+	}
+};
 
-void check_password(const std::string& pass)
+class UserLoginHandler : public UserCreationHandler
 {
-	if (pass.empty())
-		throw UserPasswordException("Empty password", "Password cannot be empty");
-	if (pass.length() > 20)
-		throw UserPasswordException("Password too long", "Password cannot be longer than 20 characters");
-	if (pass.length() < 8)
-		throw UserPasswordException("Password too short", "Password cannot be shorter than 8 characters");
-	if (pass.find_first_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ") == pass.find_last_of("0123456789"))
-		throw UserPasswordException("Password doesn't have a letter", "Password must contain at least a letter");
-	if (pass.find_first_of("0123456789") == pass.find_last_of("0123456789"))
-		throw UserPasswordException("Password contains less than two digits", "Password must contain at least two digits");
-}
+public:
+	void handle(const std::string& login, const std::string& pass) override
+	{
+		if (login.empty())
+			throw UserLoginException("Empty login", "Login cannot be empty");
+		if (login.length() > 12)
+			throw UserLoginException("Login too long", "Login cannot be longer than 12 characters");
+		if (login.find_first_of("0123456789") != std::string::npos)
+			throw UserLoginException("Login contains digits", "Login cannot contain digits");
+		UserCreationHandler::handle(login, pass);
+	}
+};
+
+class UserPasswordHandler : public UserCreationHandler
+{
+public:
+	void handle(const std::string& login, const std::string& pass) override
+	{
+		if (pass.empty())
+			throw UserPasswordException("Empty password", "Password cannot be empty");
+		if (pass.length() > 20)
+			throw UserPasswordException("Password too long", "Password cannot be longer than 20 characters");
+		if (pass.length() < 8)
+			throw UserPasswordException("Password too short", "Password cannot be shorter than 8 characters");
+		if (pass.find_first_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ") == pass.find_last_of("0123456789"))
+			throw UserPasswordException("Password doesn't have a letter", "Password must contain at least a letter");
+		if (pass.find_first_of("0123456789") == pass.find_last_of("0123456789"))
+			throw UserPasswordException("Password contains less than two digits", "Password must contain at least two digits");
+		UserCreationHandler::handle(login, pass);
+	}
+};
 
 User& UserManager::add(const std::string &login, const std::string &pass)
 {
-	check_login(login);
-	check_password(pass);
+	UserLoginHandler login_handler;
+	UserPasswordHandler password_handler;
+	login_handler.setNext(&password_handler);
+	login_handler.handle(login, pass);
 
 	this->mementos.push({this->users, this->persistence});
 
@@ -71,7 +99,8 @@ User& UserManager::add(const std::string &login, const std::string &pass)
 
 void UserManager::update(User& user, const std::string& pass)
 {
-	check_password(pass);
+	UserPasswordHandler password_handler;
+	password_handler.handle(user.login(), pass);
 	this->mementos.push({this->users, this->persistence});
 	user.pass() = pass;
 	this->persistence.structure().at(user.login()) = pass;
